@@ -24,6 +24,7 @@ def hello_world():
         data = []
         for row in rows:
             data.append({
+                'id': row[0],
                 'id_orders': row[1],
                 'name_product': row[2],
                 'count': row[3],
@@ -70,7 +71,7 @@ def update_data(id):
         )
         cur = conn.cursor()
         data = request.get_json()
-        cur.execute("UPDATE public.orders SET id_orders='', name_product='', count='', comment='', table_number='', price='' WHERE id=nextval", (data['id_orders'], data['name_product'], data['count'], data['comment'], data['table_number'], data['price']))
+        cur.execute("UPDATE public.orders SET id_orders=%s, name_product=%s, count=%s, comment=%s, table_number=%s, price=%s WHERE id=%s", (data['id_orders'], data['name_product'], data['count'], data['comment'], data['table_number'], data['price'], id))
         conn.commit()
         conn.close()
         return 'Data updated successfully'
@@ -95,6 +96,24 @@ def delete_data(id):
         return 'Data deleted successfully'
     except psycopg2.Error as e:
         return 'Error deleting data: ' + str(e)
+
+@app.route('/truncate_table', methods=['DELETE'])
+def truncate_table():
+    try:
+        conn = psycopg2.connect(
+            database='postgres',
+            user='habrpguser',
+            password='123456',
+            host='localhost',
+            port='5432'
+        )
+        cur = conn.cursor()
+        cur.execute("TRUNCATE TABLE public.orders")
+        conn.commit()
+        conn.close()
+        return 'Data truncated successfully'
+    except psycopg2.Error as e:
+        return 'Error truncating table: ' + str(e)
 
 if __name__ == '__main__':
     app.run()
