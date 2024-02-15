@@ -1,104 +1,73 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
 import './index.css';
-import './App.css';
-import App from './App';
+import { cart, renderProducts } from './products.js';
+import { updateEmptyCart } from './empty.js';
 
+renderProducts();
 
-const root = document.getElementById('root');
-const rootElement = createRoot(root);
-rootElement.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+//Всплывашка корзины, Открываю/Закрываю корзину
+document.addEventListener('DOMContentLoaded', function() {
+  var popupTrigger = document.querySelector('.popup-trigger_');
+  var orderPopup = document.querySelector('#orderPopup');
+  var closeButton = document.querySelector('.close');
+  var closeButton_1 = document.querySelector('.close_1');
+  var popupTrigger_1 = document.querySelector('.orders');
 
+  popupTrigger.addEventListener('click', function() {
+    orderPopup.style.display = 'block';
+  });
 
-
-
-// Получаем все элементы с классом "position_priceBlock__16P3q"
-const priceBlocks = document.querySelectorAll('.position_priceBlock__16P3q');
-const costElement = document.querySelector('.order-float-button_orderFloatButton__1E-RQ');
-const costElement2 = document.querySelector('.header_cartWrapper__1eKTd')
-let totalPrice = 0; // хранилище общей суммы
-
-
-
-
-                  //let totalQuantity = 0; // хранилище общего количества товаров переменная:(${totalQuantity})
-// Для каждого блока цены выполняем действия
-priceBlocks.forEach((priceBlock) => {
-
-  // Получаем элементы внутри текущего блока
-  const priceElement = priceBlock.querySelector('.position_price__17QNz');
-  const addButton = priceBlock.querySelector('.quantity-button_quantityButton__1KTbZ:last-child');
-  const subtractButton = priceBlock.querySelector('.quantity-button_quantityButton__1KTbZ:first-child');
-  const quantityElement = priceBlock.querySelector('.position_quantity__ZG2rH');
+  closeButton.addEventListener('click', function() {
+    orderPopup.style.display = 'none';
+  });
   
-  // Получаем изначальное значение цены и количества
-  const priceValue = parseFloat(priceElement.innerText.replace(/[^\d.]/g, ''));
-  const initialQuantityValue = parseInt(quantityElement.innerText);
-  let quantityValue = initialQuantityValue;
-
-  // Добавляем обработчик события при клике на кнопку добавления
-  addButton.addEventListener('click', () => {
-    quantityValue++; // Увеличиваем значение количества на 1
-    quantityElement.innerText = quantityValue; // Обновляем значение количества на странице
-    subtractButton.style.display = 'inline-block'; // Отображаем кнопку вычитания
-    quantityElement.style.display = 'inline-block'; // Отображаем элемент с количеством
-
-        totalPrice += priceValue;        // Обновляем общую сумму
-    costElement.innerHTML = `Заказ / ${totalPrice.toLocaleString('ru-RU')} руб.`; // Обновляем значение общей стоимости на кнопке снизу
-    costElement2.innerHTML = `Заказ / ${totalPrice.toLocaleString('ru-RU')} руб.`; //Обновляем значение общей стоимости на кнопке вверху
+  popupTrigger_1.addEventListener('click', function() {
+    orderPopup.style.display = 'block';
   });
 
-
-  // Добавляем обработчик события при клике на кнопку вычитания
-  subtractButton.addEventListener('click', () => {
-    if (quantityValue > 0) {
-      quantityValue--; // Уменьшаем значение количества на 1
-      quantityElement.innerText = quantityValue; // Обновляем значение количества на странице
-   
-      totalPrice -= priceValue;   // Обновляем общую сумму
-      costElement.innerHTML = `Заказ / ${totalPrice.toLocaleString('ru-RU')} руб.`; // Обновляем значение общей стоимости на кнопке внизу
-      costElement2.innerHTML = `Заказ / ${totalPrice.toLocaleString('ru-RU')} руб.)`; //Обновляем значение общей стоимости на кнопке вверху
-    }
-
-    if (quantityValue <= 0) {
-      subtractButton.style.display = 'none'; // Скрываем кнопку вычитания
-      quantityElement.style.display = 'none'; // Скрываем элемент с количеством
-    }
+  closeButton_1.addEventListener('click', function() {
+    orderPopup.style.display = 'none';
   });
-
-  // Если начальное значение количества меньше или равно 1, скрываем кнопку вычитания и элемент с количеством
-  if (quantityValue <= 1) {
-    subtractButton.style.display = 'none';
-    quantityElement.style.display = 'none';
-  }
-
 });
+//Конец всплывашки корзины
 
 
+//  Поля "Имя" и "Номер стола" внутри всплывашки корзины
+document.addEventListener('DOMContentLoaded', function() {
+  var submitButton = document.querySelector('.place_order');
+  var tooltipName = document.querySelector('.tooltip_name');
+  var tooltipSelect = document.querySelector('.tooltip_select');
+  var successMessage = document.querySelector('.popupNumber');
 
-// Сохраняем значение totalPrice, а не ссылку на функцию getTotalPrice
-localStorage.setItem('totalPrice', totalPrice);
+  submitButton.addEventListener('click', function() {
+    var select = document.querySelector('.select');
+    var name = document.querySelector('.button_name').value;
+
+    if (name === "") {
+      tooltipName.classList.add('visible');
+    } else {
+      tooltipName.classList.remove('visible');
+    } 
+
+    if (select.value === "Выберите номер стола") {
+      tooltipSelect.classList.add('visible');
+    } else {
+      tooltipSelect.classList.remove('visible');
+    }
+
+    if (name !== "" && select.value !== "Выберите номер стола") {
+      successMessage.style.display = "flex";
+    }
+  });
+});                   //  Конец поля "Имя" и "Номер стола"
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                      // Перезагружаю страницу при клике на "Ок" во всплывашке с номером заказа
+document.addEventListener("DOMContentLoaded", function() {
+  var closeButton = document.querySelector(".close_NumberButton");
+  closeButton.addEventListener("click", function() {
+    window.location.reload() // Перезагрузка страницы
+  });
+});
 
 
 
@@ -169,3 +138,180 @@ window.addEventListener('scroll', () => {
     }
   });
 });
+
+
+
+  const data = {}; // Здесь товары, которые добавляю в корзину
+
+  export { data };
+
+  document.querySelectorAll('.products').forEach(product => {
+    product.addEventListener('click', event => {
+      let articul;
+      if (event.target.classList.contains("to-cartPlus")) { 
+        // При клике на + (Класс to-cart) добавить товар в корзину
+        articul = event.target.dataset['articul'];
+        if (data[articul] !== undefined) {
+          data[articul].count++;
+        } else {
+          data[articul] = cart.products.find(p => p.articul === articul);
+          data[articul].count = 1;
+        }
+        localStorage.setItem('cart', JSON.stringify(data));
+        const quantityElement = event.target.closest('.position_addWrapper__1mtqa').querySelector('.position_quantity__ZG2rH');
+        quantityElement.textContent = data[articul].count;
+        updateProductsOrder();
+        updateTotalPrice();
+        quantityElement.style.display = 'block';  // Отображаю количество
+        event.target.closest('.position_addWrapper__1mtqa').querySelector('.to-cartMinus').style.display = 'block';// Отображаю кнопку "-"
+      } 
+      // При клике на - (Класс to-cartMinus) уменьшить товар в корзине
+      else if (event.target.classList.contains("to-cartMinus")) {
+        articul = event.target.dataset['articul'];
+        if (data[articul] && data[articul].count > 0) {
+          data[articul].count--;
+          localStorage.setItem('cart', JSON.stringify(data));
+          const quantityElement = event.target.closest('.position_addWrapper__1mtqa').querySelector('.position_quantity__ZG2rH');
+          quantityElement.textContent = data[articul].count;
+          if (data[articul].count === 0) {
+            delete data[articul];
+            quantityElement.style.display = 'none';
+            event.target.style.display = 'none';
+          }
+          updateEmptyCart()
+          updateProductsOrder();
+          updateTotalPrice();
+        }
+      }
+    });
+  });
+
+function updateTotalPrice() {
+  let totalPrice = Object.values(data).reduce((acc, val) => acc + val.price * val.count, 0);
+  // Обновляем текст кнопки "Заказ" в меню
+  const costElement = document.querySelector('.text_order');
+  costElement.textContent = `Заказ / ${totalPrice.toFixed(2)} руб.`;
+
+  const costElement2 = document.querySelector('.orders');
+  costElement2.textContent = `Заказ / ${totalPrice.toFixed(2)} руб.`;
+
+  // Обновляем поле "Итого" в корзине
+  const costElement3 = document.querySelector('.order_total__2BUYE');
+  costElement3.textContent = `Итого: ${totalPrice.toFixed(2)} руб.`;
+}
+
+////////////////////////////////////////////// Начинается код корзины///////////////////////////////////////////////////
+
+let cartOrder = {
+   data
+  };
+
+  const productsOrderElement = document.querySelector('.productsOrder');
+
+function updateProductsOrder() {
+  updateEmptyCart()
+  let oit = ''; 
+  
+  Object.keys(data).forEach(key => {
+    const item = data[key];
+
+    oit += `<div class="order-item_product__1ADvM" id="${key}">`;
+    oit += `<div class="order-item_photoContainer__6vF63">`;
+    oit += `<img src="${item.image}" class="photo_photo__36ndO">`;
+    oit += `</div>`;
+    oit += `<div class="order-item_productInfo__XZaxe">`;
+    oit += `<p class="position_name__2_bPs" title="Чешское пиво">${item.name}</p>`;
+    oit += `<div class="order-item_costAndQuantityWrapper__3xEmN">`;
+    oit += `<div class="order-item_quantityRow__3fQUG">`;
+    oit += `<button class="Minus quantity-button_quantityButton__1KTbZ" data-articul="${key}">-</button>`;
+    oit += `<p class="position_quantity__ZG2rH">${item.count}</p>`;
+    oit += `<button class="Plus quantity-button_quantityButton__1KTbZ" data-articul="${key}">+</button>`;
+    oit += `</div>`;
+    oit += `<p class="order-item_cost__1VpvP">${item.price} руб.</p>`;
+    oit += `</div>`;
+    oit += `</div>`;
+    oit += `</div>`;
+   
+
+      localStorage.setItem('cart', JSON.stringify(data));
+  });
+
+  productsOrderElement.innerHTML = oit;
+  localStorage.setItem('cartOrder', JSON.stringify(cartOrder));
+}
+
+               // Скрываю товар в корзине при клике на кнопку "Заказ" если количество = 0
+var popupTrigger = document.querySelector('.popup-trigger_');
+popupTrigger.addEventListener('click', function() {
+  updateEmptyCart()
+  const quantityElements = document.querySelectorAll('div.order-item_product__1ADvM > .order-item_productInfo__XZaxe > .order-item_costAndQuantityWrapper__3xEmN > .order-item_quantityRow__3fQUG > p.position_quantity__ZG2rH');
+  quantityElements.forEach(element => {
+    if (element.textContent.trim() === '0') {
+        element.closest('.order-item_product__1ADvM').style.display = 'none';
+    } else {
+        element.closest('.order-item_product__1ADvM').style.display = '';
+    }
+  });
+});
+
+    // Скрываю товар в корзине при клике на кнопку "Заказ" если количество = 0
+    var popupTrigg = document.querySelector('.orders');
+    popupTrigg.addEventListener('click', function() {
+      updateEmptyCart()
+      const quantityElements = document.querySelectorAll('div.order-item_product__1ADvM > .order-item_productInfo__XZaxe > .order-item_costAndQuantityWrapper__3xEmN > .order-item_quantityRow__3fQUG > p.position_quantity__ZG2rH');
+      quantityElements.forEach(element => {
+        if (element.textContent.trim() === '0') {
+            element.closest('.order-item_product__1ADvM').style.display = 'none';
+        } else {
+            element.closest('.order-item_product__1ADvM').style.display = '';
+        }
+      });
+    });
+
+             ////////////////////////////////Всё ещё корзина, работа с кнопками + и - и стоимость//////////////
+
+             document.querySelector('.productsOrder').addEventListener('click', event => {
+              event.preventDefault();
+              let key;
+              if (event.target.classList.contains("Plus")) { 
+                // При клике на + (Класс to-cart) добавить товар в корзину
+                let key = event.target.dataset['articul'];
+                if (data[key] !== undefined) {
+                  data[key]['count']++;
+                  
+                  localStorage.setItem('cart', JSON.stringify(data));
+                  const quantityElemen = event.target.closest('.order-item_quantityRow__3fQUG').querySelector('.position_quantity__ZG2rH');
+                  quantityElemen.textContent = data[key].count;
+                } else {
+                  data[key] = cart[key];
+                  data[key]['count'] = 1;
+                  data[key]['price'] = parseFloat(data[key]['price']);
+                }
+                localStorage.setItem('cart', JSON.stringify(data));
+                renderProducts();
+                updateTotalPrice();
+              // При клике на - (Класс to-cartMinus) убавить товар из корзины
+              } else if (event.target.classList.contains("Minus")) {
+                key = event.target.dataset['articul'];
+                if (data[key]?.count > 0) {
+                  data[key]['count']--;
+                  localStorage.setItem('cart', JSON.stringify(data));
+                  const quantityElemen = event.target.closest('.order-item_quantityRow__3fQUG').querySelector('.position_quantity__ZG2rH');
+                  quantityElemen.textContent = data[key].count;
+                  
+                  updateEmptyCart()
+                  if (data[key].count === 0)
+                  delete data[key];
+                  localStorage.setItem('cart', JSON.stringify(data));
+                  renderProducts();
+                  updateEmptyCart()
+                  updateProductsOrder();
+                  updateTotalPrice();
+              }
+            }
+            });
+
+              
+              
+            
+            
